@@ -26,18 +26,33 @@ function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (token == null) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: '未登录' });
   }
 
   jwt.verify(token, secretKey, (err, vmName) => {
     if (err) {
-      return res.status(403).json({ error: 'Invalid token' });
+      return res.status(403).json({ error: '登录失效' });
     }
     req.vmName = vmName;
     next();
   });
 }
 
+// app.get('/', (req, res, next) => {
+//   const authHeader = req.headers['authorization'];
+//   const token = authHeader && authHeader.split(' ')[1];
+//   if (!token) {
+//     // 如果未提供令牌，重定向到登录页
+//     res.redirect('/login');
+//   } else {
+//     // 如果提供了令牌，验证令牌并继续处理请求
+//     next();
+//   }
+// });
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
 
 app.post('/api/login', (req, res) => {
   const { vmn, pass } = req.body;
@@ -51,7 +66,7 @@ app.post('/api/login', (req, res) => {
     return res.status(200).json({ token: token });
   } else {
     // 用户凭证验证失败
-    return res.status(401).json({ error: 'Invalid credentials' });
+    return res.status(401).json({ error: '账号或密码错误' });
   }
 });
 
