@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@azure/arm-compute": "^21.5.0",
+    "@azure/identity": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
