@@ -45,23 +45,50 @@
      </mdui-tooltip>
   </mdui-top-app-bar>
 
+<p></p>
+<mdui-card class="center">
+  <div class="card-content">
+    <div class="card-primary-title">概要</div>
+    <div class="card-primary-subtitle">虚拟机的大致情况</div>
 
+    <mdui-button full-width id="info" onclick="info()">查询信息</mdui-button>
+  </div>
+  </div>
+</mdui-card>
+
+<!-- 对话框 -->
+<mdui-dialog close-on-overlay-click close-on-esc title="信息" id="info-dialog">
+  <span slot="headline">信息</span>
+  <pre id="info-content"></pre>
+  <p></p>
+  <mdui-button slot="action" onclick="document.getElementById('rawinfo-dialog').open = true;" variant="outlined">查看原始信息</mdui-button>
+  <mdui-button slot="action" onclick="document.getElementById('info-dialog').open = false;">关闭</mdui-button>
+</mdui-dialog>
+
+<mdui-dialog close-on-overlay-click close-on-esc title="信息" id="rawinfo-dialog">
+  <span slot="headline">信息</span>
+  <pre id="rawinfo-content"></pre>
+  <p></p>
+  <mdui-button slot="action" onclick="document.getElementById('rawinfo-dialog').open = false;">关闭</mdui-button>
+</mdui-dialog>
 
 <p></p>
 
-  <mdui-card class="center">
-    <div class="card-content">
-      <div class="card-primary-title">控制面板</div>
-      <div class="card-primary-subtitle">在这里操作虚拟机</div>
+<mdui-card class="center">
+  <div class="card-content">
+    <div class="card-primary-title">控制面板</div>
+    <div class="card-primary-subtitle">在这里操作虚拟机</div>
 
-      <mdui-button full-width id="start" onclick="start()">开机</mdui-button>
-    </div>
-    </div>
-  </mdui-card>
+    <mdui-button full-width id="start" onclick="start()">开机</mdui-button>
+    <p></p>
+    <mdui-button full-width id="stop" onclick="stop()">关机</mdui-button>
+  </div>
+  </div>
+</mdui-card>
 
 <script>
-      // Check if jwt token exists in cookies
-      function getCookie(name) {
+    // Check if jwt token exists in cookies
+    function getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
       if (parts.length === 2) return parts.pop().split(';').shift();
@@ -72,6 +99,111 @@
       // Redirect to login page
       window.location.href = '/login';
     }
+
+    function info() {
+      const url = `/api/info`;
+      var infoButton = document.getElementById("info");
+      infoButton.setAttribute("loading", "");
+      infoButton.setAttribute("disabled", "");
+
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`,
+        },
+      })
+        .then(response => {
+          if (response.status === 200) {
+              return response.json().then(data => {
+                var infoDialog = document.getElementById("info-dialog");
+                var infoContent = document.getElementById("info-content");
+                var rawinfoDialog = document.getElementById("rawinfo-dialog");
+                var rawinfoContent = document.getElementById("rawinfo-content");
+                infoContent.innerText = `名称: ${data.name}, 状态: ${data.provisioningState}`;
+                rawinfoContent.innerText = JSON.stringify(data, null, 2);
+                infoDialog.open = true;
+                // mdui.alert({description: `${JSON.stringify(data, null, 2)}`});
+                // mdui.snackbar({ message: `CPU: ${data.cpu}, 内存: ${data.mem}, 硬盘: ${data.disk}, 网络: ${data.net}`, position: 'top', closeOnOutsideClick: true });
+                infoButton.removeAttribute("loading");
+                infoButton.removeAttribute("disabled");
+              });
+            } else {
+              return response.text().then(data => {
+                throw new Error(`HTTP ${response.status} ${data.error}`);
+              });
+            }
+          })
+            .catch(error => {
+              mdui.snackbar({ message: `错误: ${error.message}`, position: 'top', closeOnOutsideClick: true });
+              infoButton.removeAttribute("loading");
+              infoButton.removeAttribute("disabled");
+            });
+    };
+
+
+    function start() {
+      const url = `/api/start`;
+      var startButton = document.getElementById("start");
+      startButton.setAttribute("loading", "");
+      startButton.setAttribute("disabled", "");
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`,
+        },
+      })
+        .then(response => {
+          if (response.status === 200) {
+              return response.text().then(data => {
+                mdui.snackbar({ message: data, position: 'top', closeOnOutsideClick: true });
+                startButton.removeAttribute("loading");
+                startButton.removeAttribute("disabled");
+              });
+            } else {
+              return response.text().then(data => {
+                throw new Error(`HTTP ${response.status} ${data.error}`);
+              });
+            }
+          })
+            .catch(error => {
+              mdui.snackbar({ message: `错误: ${error.message}`, position: 'top', closeOnOutsideClick: true });
+              startButton.removeAttribute("loading");
+              startButton.removeAttribute("disabled");
+            });
+    };
+
+    function stop() {
+      const url = `/api/stop`;
+      var stopButton = document.getElementById("stop");
+      stopButton.setAttribute("loading", "");
+      stopButton.setAttribute("disabled", "");
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`,
+        },
+      })
+        .then(response => {
+          if (response.status === 200) {
+              return response.text().then(data => {
+                mdui.snackbar({ message: data, position: 'top', closeOnOutsideClick: true });
+                stopButton.removeAttribute("loading");
+                stopButton.removeAttribute("disabled");
+              });
+            } else {
+              return response.text().then(data => {
+                throw new Error(`HTTP ${response.status} ${data.error}`);
+              });
+            }
+          })
+            .catch(error => {
+              mdui.snackbar({ message: `错误: ${error.message}`, position: 'top', closeOnOutsideClick: true });
+              stopButton.removeAttribute("loading");
+              stopButton.removeAttribute("disabled");
+            });
+    };
 </script>
 </body>
 </html>

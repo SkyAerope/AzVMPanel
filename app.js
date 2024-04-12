@@ -29,11 +29,11 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: '未登录' });
   }
 
-  jwt.verify(token, secretKey, (err, vmName) => {
+  jwt.verify(token, secretKey, (err, data) => {
     if (err) {
       return res.status(403).json({ error: '登录失效' });
     }
-    req.vmName = vmName;
+    req.vmName = data.vmname;
     next();
   });
 }
@@ -60,7 +60,7 @@ app.post('/api/login', (req, res) => {
   // 在实际应用中，你可以根据自己的用户存储方式（如数据库）来验证凭证
   if (vmn === vm && pass === passwd) {
     // 用户凭证验证成功
-    const user = { vmname: req.vmn };
+    const user = { vmname: vmn };
     const token = jwt.sign(user, secretKey);
 
     return res.status(200).json({ token: token });
@@ -71,7 +71,7 @@ app.post('/api/login', (req, res) => {
 });
 
 
-app.post('/start', authenticateToken, async (req, res) => {
+app.post('/api/start', authenticateToken, async (req, res) => {
   try {
     console.log(`Starting VM: ${req.vmName}...`);
     await computeClient.virtualMachines.beginStart(resourceGroupName, req.vmName);
@@ -84,11 +84,11 @@ app.post('/start', authenticateToken, async (req, res) => {
 });
 
 
-app.post('/stop', authenticateToken, async (req, res) => {
+app.post('/api/stop', authenticateToken, async (req, res) => {
   try {
-    console.log(`Stopping VM: ${vmName}...`);
-    await computeClient.virtualMachines.beginPowerOff(resourceGroupName, vmName);
-    console.log(`${vmName} stopped.`);
+    console.log(`Stopping VM: ${req.vmName}...`);
+    await computeClient.virtualMachines.beginPowerOff(resourceGroupName, req.vmName);
+    console.log(`${req.vmName} stopped.`);
     res.status(200).send('关机指令已发送');
   } catch (error) {
     console.error(`Failed to stop VM: ${error}`);
@@ -97,7 +97,7 @@ app.post('/stop', authenticateToken, async (req, res) => {
 });
 
 
-app.get('/info', authenticateToken, async (req, res) => {
+app.get('/api/info', authenticateToken, async (req, res) => {
   try {
     const vmInfo = await computeClient.virtualMachines.get(resourceGroupName, req.vmName);
     res.status(200).json(vmInfo);
