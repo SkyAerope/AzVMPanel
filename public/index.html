@@ -119,11 +119,10 @@
                 var infoContent = document.getElementById("info-content");
                 var rawinfoDialog = document.getElementById("rawinfo-dialog");
                 var rawinfoContent = document.getElementById("rawinfo-content");
-                infoContent.innerText = `名称: ${data.name}, 状态: ${data.provisioningState}`;
+                infoContent.innerText = `状态: ${data.statuses[1].displayStatus}`;
                 rawinfoContent.innerText = JSON.stringify(data, null, 2);
                 infoDialog.open = true;
                 // mdui.alert({description: `${JSON.stringify(data, null, 2)}`});
-                // mdui.snackbar({ message: `CPU: ${data.cpu}, 内存: ${data.mem}, 硬盘: ${data.disk}, 网络: ${data.net}`, position: 'top', closeOnOutsideClick: true });
                 infoButton.removeAttribute("loading");
                 infoButton.removeAttribute("disabled");
               });

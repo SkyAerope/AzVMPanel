@@ -99,7 +99,8 @@ app.post('/api/stop', authenticateToken, async (req, res) => {
 
 app.get('/api/info', authenticateToken, async (req, res) => {
   try {
-    const vmInfo = await computeClient.virtualMachines.get(resourceGroupName, req.vmName);
+    // const vmInfo = await computeClient.virtualMachines.get(resourceGroupName, req.vmName);
+    const vmInfo = await computeClient.virtualMachines.instanceView(resourceGroupName, req.vmName);
     res.status(200).json(vmInfo);
     // res.status(200).json(`VM info: ${JSON.stringify(vmInfo, null, 2)}`);
   } catch (error) {
