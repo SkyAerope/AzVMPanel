@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"/>
+  <meta name="renderer" content="webkit"/>
+  <meta name="force-rendering" content="webkit"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <link rel="icon" type="image/x-icon" href="favicon.png">
+
+  <style>
+    .container,.container-fluid{-webkit-box-sizing:border-box;box-sizing:border-box;margin-right:auto;margin-left:auto;padding-right:8px;padding-left:8px}.container-fluid::after,.container::after{display:table;clear:both;content:''}.container{width:96%;max-width:1280px}
+    @media (min-width:600px){.container{width:94%}}
+    @media (min-width:1024px){.container{width:92%}}
+    .card-content{position:relative;padding:24px;font-size:14px;line-height:24px}
+    .card-primary-title{display:block;font-size:24px;line-height:36px;opacity:.87}
+    .card-primary-subtitle{display:block;font-size:14px;line-height:24px;opacity:.54}
+    .typo-display-4,.typo-display-4-opacity{font-weight:300;font-size:112px;letter-spacing:-.04em}.typo-display-4-opacity{opacity:.54}
+    .text-center{text-align:center!important}
+    .center{display:block!important;margin-right:auto!important;margin-left:auto!important}
+
+  </style>
+  <!-- MDUI CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/mdui@2.0.3/mdui.css">
+  <!-- <link rel="stylesheet" href="https://unpkg.com/mdui@1.0.2/dist/css/mdui.min.css"> -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./font.css">
+  <title>Azure VM Panel</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+  <!-- MDUI JavaScript -->
+  <script src="https://unpkg.com/mdui@2.0.3/mdui.global.js"></script>
+</head>
+<body class="container"></body>
+  <mdui-top-app-bar>
+    <mdui-top-app-bar-title>Azure VM Panel</mdui-top-app-bar-title>
+    <div style="flex-grow: 1"></div>
+    <mdui-tooltip content="查看 Github">
+        <mdui-button-icon>
+          <a href="https://github.com/SkyAerope/AzVMPanel" target="_blank">
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 36 36" enable-background="new 0 0 36 36" xml:space="preserve" style="width: 24px;height:24px;">
+              <path fill-rule="evenodd" clip-rule="evenodd" fill="#212121" d="M18,1.4C9,1.4,1.7,8.7,1.7,17.7c0,7.2,4.7,13.3,11.1,15.5c0.8,0.1,1.1-0.4,1.1-0.8c0-0.4,0-1.4,0-2.8c-4.5,1-5.5-2.2-5.5-2.2c-0.7-1.9-1.8-2.4-1.8-2.4c-1.5-1,0.1-1,0.1-1c1.6,0.1,2.5,1.7,2.5,1.7c1.5,2.5,3.8,1.8,4.7,1.4c0.1-1.1,0.6-1.8,1-2.2c-3.6-0.4-7.4-1.8-7.4-8.1c0-1.8,0.6-3.2,1.7-4.4c-0.2-0.4-0.7-2.1,0.2-4.3c0,0,1.4-0.4,4.5,1.7c1.3-0.4,2.7-0.5,4.1-0.5c1.4,0,2.8,0.2,4.1,0.5c3.1-2.1,4.5-1.7,4.5-1.7c0.9,2.2,0.3,3.9,0.2,4.3c1,1.1,1.7,2.6,1.7,4.4c0,6.3-3.8,7.6-7.4,8c0.6,0.5,1.1,1.5,1.1,3c0,2.2,0,3.9,0,4.5c0,0.4,0.3,0.9,1.1,0.8c6.5-2.2,11.1-8.3,11.1-15.5C34.3,8.7,27,1.4,18,1.4z"></path>
+            </svg>
+          </a>
+        </mdui-button-icon>
+     </mdui-tooltip>
+  </mdui-top-app-bar>
+
+
+
+<p></p>
+
+  <mdui-card class="center">
+    <div class="card-content">
+      <div class="card-primary-title">登录</div>
+      <div class="card-primary-subtitle">访问本页面需要身份验证</div>
+      <mdui-text-field label="主机名" icon="computer" id="host" autofocus></mdui-text-field>
+      <p></p>
+      <mdui-text-field label="密码" icon="vpn_key" id="pass" type="password"></mdui-text-field>
+      <p></p>
+      <mdui-button full-width id="login" onclick="login()">登录</mdui-button>
+    </div>
+    </div>
+  </mdui-card>
+
+<script>
+  function login() {
+    var host = document.getElementById("host").value;
+    var pass = document.getElementById("pass").value;
+
+    var loginButton = document.getElementById("login");
+    loginButton.setAttribute("loading", "");
+    loginButton.setAttribute("disabled", "");
+
+    fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ vmn: host, pass: pass })
+    })
+    .then(response => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        return response.json().then(data => {
+          throw new Error(`HTTP ${response.status} ${data.error}`);
+        });
+      }
+    })
+    .then(data => {
+      // console.log(data);
+      // 设置JWT令牌作为cookie
+      document.cookie = `jwt=${data.token}; path=/;`;
+      mdui.snackbar({ message: '登录成功', position: 'top', closeOnOutsideClick: true });
+      loginButton.removeAttribute("loading");
+      loginButton.removeAttribute("disabled");
+      window.location.href = '/';
+    })
+    .catch(error => {
+      mdui.snackbar({ message: `登录失败: ${error.message}`, position: 'top', closeOnOutsideClick: true });
+      loginButton.removeAttribute("loading");
+      loginButton.removeAttribute("disabled");
+    });
+  };
+</script>
+</body>
+</html>
