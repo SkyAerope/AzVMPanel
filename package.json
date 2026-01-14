@@ -3,7 +3,7 @@
     "@azure/arm-compute": "^21.5.0",
     "@azure/identity": "^4.2.1",
     "dotenv": "^16.4.5",
-    "express": "^4.20.0",
+    "express": "^4.22.1",
     "jsonwebtoken": "^9.0.2"
   },
   "scripts": {
